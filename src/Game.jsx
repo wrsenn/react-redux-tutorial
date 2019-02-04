@@ -1,35 +1,16 @@
 import React from 'react';
-import Board from './Board';
+import StatefulBoard from './StatefulBoard';
 import calculateWinner from './calculateWinner';
+import { newStep, revertToStep } from './actions';
 
 class Game extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      history: [
-        {
-          squares: Array(9).fill(null)
-        }
-      ],
-      xIsNext: true,
-      stepNumber: 0
-    };
-  }
-
-  getHistory() {
-    const { history, stepNumber } = this.state;
-    return history.slice(0, stepNumber + 1);
-  }
-
   getCurrentSquares() {
-    const { stepNumber } = this.state;
-    const history = this.getHistory();
-    const current = history[stepNumber];
-    return current.squares.slice();
+    const { history, stepNumber } = this.props;
+    return history[stepNumber];
   }
 
   getNextMark() {
-    const { xIsNext } = this.state;
+    const { xIsNext } = this.props;
     return xIsNext ? 'X' : 'O';
   }
 
@@ -43,7 +24,7 @@ class Game extends React.Component {
   }
 
   getMoves() {
-    const history = this.getHistory();
+    const { history } = this.props;
     return history.map((step, move) => {
       const desc = move ? `Go to move #${move}` : 'Go to game start';
       return (
@@ -57,15 +38,12 @@ class Game extends React.Component {
   }
 
   jumpTo(step) {
-    this.setState({
-      stepNumber: step,
-      xIsNext: step % 2 === 0
-    });
+    const { dispatch } = this.props;
+    dispatch(revertToStep(step));
   }
 
   handleClick(i) {
-    const { xIsNext } = this.state;
-    const history = this.getHistory();
+    const { dispatch } = this.props;
     const squares = this.getCurrentSquares();
 
     // Return early if someone has won or if Square is already filled
@@ -73,27 +51,14 @@ class Game extends React.Component {
       return;
     }
 
-    const squaresCopy = squares.slice();
-    squaresCopy[i] = this.getNextMark();
-    this.setState({
-      history: history.concat([
-        {
-          squares: squaresCopy
-        }
-      ]),
-      xIsNext: !xIsNext,
-      stepNumber: history.length
-    });
+    dispatch(newStep(this.getNextMark(), i));
   }
 
   render() {
     return (
       <div className="game">
         <div className="game-board">
-          <Board
-            squares={this.getCurrentSquares()}
-            onClick={i => this.handleClick(i)}
-          />
+          <StatefulBoard onClick={i => this.handleClick(i)} />
         </div>
         <div className="game-info">
           <div>{this.getStatus()}</div>

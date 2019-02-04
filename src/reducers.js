@@ -3,11 +3,7 @@ import { NEW_STEP, REVERT_TO_STEP } from './actions';
 
 export const initialState = {
   steps: {
-    history: [
-      {
-        squares: Array(9).fill(null)
-      }
-    ],
+    history: [Array(9).fill(null)],
     stepNumber: 0,
     xIsNext: true
   }
@@ -17,13 +13,13 @@ function getNextMark(xIsNext) {
   return xIsNext ? 'X' : 'O';
 }
 
-function steps(state = initialState, action) {
+function steps(state = initialState.steps, action) {
   switch (action.type) {
     case NEW_STEP: {
-      const currentSquares = state.history.slice(-1).pop();
-      currentSquares[action.cell] = getNextMark(state.xIsNext);
+      const currentSquares = [...state.history.slice(-1).pop()];
+      currentSquares[action.square] = getNextMark(state.xIsNext);
       return {
-        history: [...state.history, { squares: currentSquares }],
+        history: [...state.history, currentSquares],
         stepNumber: state.history.length,
         xIsNext: !state.xIsNext
       };
@@ -39,4 +35,4 @@ function steps(state = initialState, action) {
   }
 }
 
-export const ticTacToeApp = combineReducers(steps);
+export const ticTacToeApp = combineReducers({ steps });

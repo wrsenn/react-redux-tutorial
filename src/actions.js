@@ -5,8 +5,8 @@ function newAction(type, ...args) {
   return Object.assign({ type }, ...args);
 }
 
-export function newStep(player, cell) {
-  return newAction(NEW_STEP, { player, cell });
+export function newStep(player, square) {
+  return newAction(NEW_STEP, { player, square });
 }
 
 export function revertToStep(stepNumber) {
